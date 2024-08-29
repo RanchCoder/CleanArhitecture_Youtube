@@ -1,12 +1,14 @@
 using System.Diagnostics;
 using BuberDinner.Application.Services.Authentication;
 using BuberDinner.Contracts.Authentication;
+using BuberDinner.WebApi.Filter;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BuberDinner.WebApi.Controllers;
 
 [ApiController]
 [Route("auth")]
+
 public class AuthenticationController : ControllerBase{
 
  private readonly IAuthenticationService _authenticationService;
