@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using ErrorOr;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
@@ -98,6 +99,11 @@ public  class BuberDinerProblemDetailsFactory : ProblemDetailsFactory
         if (traceId != null)
         {
             problemDetails.Extensions["traceId"] = traceId;
+        }
+
+        var errors = httpContext?.Items["errors"] as List<Error>;
+        if(errors != null){
+            problemDetails.Extensions.Add("error-codes",errors.Select(e => e.Code));
         }
 
         _configure?.Invoke(new() { HttpContext = httpContext!, ProblemDetails = problemDetails });
