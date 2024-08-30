@@ -6,13 +6,13 @@ using BuberDinner.Application.common.Interfaces.Authentication;
 using BuberDinner.Application.common.Interfaces.Persistence;
 using ErrorOr;
 
-namespace BuberDinner.Application.Services.Authentication;
+namespace BuberDinner.Application.Services.Authentication.Query;
 
-public class AuthenticationService : IAuthenticationService
+public class AuthenticationQueryService : IAuthenticationQueryService
 {
     private readonly IJwtTokenGenerator _jwtTokenGenerator;
     private readonly IUserRepository _userRepository;
-    public AuthenticationService(IJwtTokenGenerator jwtTokenGenerator, IUserRepository userRepository){
+    public AuthenticationQueryService(IJwtTokenGenerator jwtTokenGenerator, IUserRepository userRepository){
         _jwtTokenGenerator = jwtTokenGenerator;
         _userRepository = userRepository;
     }
@@ -30,21 +30,4 @@ public class AuthenticationService : IAuthenticationService
         return new AuthenticationResult(user, token);
     }
 
-    public ErrorOr<AuthenticationResult> Register(string FirstName, string LastName, string Email, string Password)
-    {
-
-       if(_userRepository.GetUserByEmail(Email) != null){
-         return Errors.User.DuplicateEmail;
-       }
-       var user = new User{
-        FirstName = FirstName,
-        LastName = LastName,
-        Email = Email,
-        Password = Password
-       };
-
-       _userRepository.Add(user);
-        var token = _jwtTokenGenerator.GenerateToken(user);
-        return new AuthenticationResult(user, token);
-    }
 }
