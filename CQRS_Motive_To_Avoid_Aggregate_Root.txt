@@ -1,0 +1,2 @@
+The Main motive of CQRS is to have a slim response i.e a DTO that returns the fields that are required instead of sending additional data.
+It must avoid returning Aggregate Root entities in the response.

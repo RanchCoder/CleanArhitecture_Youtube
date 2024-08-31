@@ -1,0 +1,87 @@
+dotnet add package MediatR.Extensions.Microsoft.DependencyInjection
+
+
+services.AddMediatR(typeof(DependencyInjection).Assembly); 
+what does this line do and how does system know that it has to call a particular type of handler when using mediatr ?
+
+ChatGPT said:
+ChatGPT
+The line services.AddMediatR(typeof(DependencyInjection).Assembly); 
+is used to configure MediatR in an ASP.NET Core application.
+Here’s a detailed explanation of what this line does and how MediatR knows which handler to call:
+
+What the Line Does
+services.AddMediatR(...):
+
+This is an extension method provided by the MediatR library for registering MediatR services with the ASP.NET Core dependency injection (DI) container.
+It sets up the necessary infrastructure for MediatR to work within the application, including scanning assemblies for handlers and other related services.
+typeof(DependencyInjection).Assembly:
+
+typeof(DependencyInjection).Assembly retrieves the assembly where the DependencyInjection class is defined.
+This means MediatR will scan this assembly (and its referenced assemblies) to find all the implementations of IRequestHandler<TRequest, TResponse>, INotificationHandler<TNotification>, and other MediatR-related types.
+
+How MediatR Knows Which Handler to Call?
+Handler Discovery:
+
+MediatR uses the assembly scanning feature to discover handler implementations. 
+When you call AddMediatR, it looks for classes that implement IRequestHandler<TRequest, TResponse>, INotificationHandler<TNotification>, and other MediatR interfaces within the specified assemblies.
+Each IRequestHandler<TRequest, TResponse> implementation is associated with a specific request type (TRequest) and a response type (TResponse).
+
+Request Handling:
+When you send a request using MediatR, such as:
+var result = await mediator.Send(new LoginQuery("email@example.com", "password"));
+
+MediatR uses the type of the request (LoginQuery in this case) to find the appropriate handler.
+It resolves the request handler from the DI container, executes it, and returns the result.
+Dependency Injection:
+
+The DI container resolves the correct handler based on the request type. For example, if you have a handler like this:
+public class LoginQueryHandler : IRequestHandler<LoginQuery, ErrorOr<AuthenticationResult>>
+{
+    public Task<ErrorOr<AuthenticationResult>> Handle(LoginQuery request, CancellationToken cancellationToken)
+    {
+        // Handle the login query
+    }
+}
+MediatR knows that LoginQueryHandler handles LoginQuery requests because it implements IRequestHandler<LoginQuery, ErrorOr<AuthenticationResult>>.
+Registration and Resolution:
+
+The AddMediatR method ensures that MediatR's services and handlers are registered in the DI container.
+When a request is sent through MediatR, the framework uses the DI container to locate the appropriate handler and invoke it.
+Example
+Here’s a brief overview of how it all works together:
+
+Register MediatR:
+
+csharp
+Copy code
+public void ConfigureServices(IServiceCollection services)
+{
+    services.AddMediatR(typeof(DependencyInjection).Assembly);
+}
+Define a Request:
+
+public record LoginQuery(string Email, string Password) : IRequest<ErrorOr<AuthenticationResult>>;
+Create a Handler:
+
+csharp
+Copy code
+public class LoginQueryHandler : IRequestHandler<LoginQuery, ErrorOr<AuthenticationResult>>
+{
+    public Task<ErrorOr<AuthenticationResult>> Handle(LoginQuery request, CancellationToken cancellationToken)
+    {
+        // Handle the request
+    }
+}
+Send a Request:
+
+csharp
+Copy code
+var result = await mediator.Send(new LoginQuery("email@example.com", "password"));
+In summary, services.AddMediatR(typeof(DependencyInjection).Assembly); registers MediatR services and handlers with the dependency injection container, allowing MediatR to discover and resolve request handlers based on the request type at runtime. This setup facilitates the handling of requests and notifications in a decoupled and flexible manner.
+
+
+IMediatr has implemented ISender, IPublisher due to interface seggregation principle.
+ISender has the method Send()
+
+The Send() method sends the request.

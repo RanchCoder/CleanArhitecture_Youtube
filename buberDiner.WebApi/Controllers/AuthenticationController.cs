@@ -1,12 +1,15 @@
 using System.Diagnostics;
 using BuberDiner.WebApi.Controllers;
 using BuberDinner.Application.Services.Authentication;
-using BuberDinner.Application.Services.Authentication.Command;
+using BuberDiner.Application.Authentication.Commands.Register;
+using BuberDiner.Application.Authentication.Quries.Login;
+
 using BuberDinner.Application.Services.Authentication.Common;
-using BuberDinner.Application.Services.Authentication.Query;
+
 using BuberDinner.Contracts.Authentication;
 using BuberDinner.WebApi.Filter;
 using ErrorOr;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BuberDinner.WebApi.Controllers;
@@ -16,20 +19,17 @@ namespace BuberDinner.WebApi.Controllers;
 
 public class AuthenticationController : ApiController{
 
- private readonly IAuthenticationCommandService _authenticationCommandService;
-  private readonly IAuthenticationQueryService _authenticationQueryService;
- public AuthenticationController(IAuthenticationCommandService authenticationCommandService,IAuthenticationQueryService authenticationQueryService){
-    _authenticationCommandService = authenticationCommandService;
-    _authenticationQueryService = authenticationQueryService;
+ private readonly ISender _mediator;
+
+ public AuthenticationController(ISender mediator){
+    _mediator = mediator;
  }
  [HttpPost("register")]
- public IActionResult Register(RegisterRequest request){
-    Debug.WriteLine(request.FirstName + " " + request.LastName);
-    ErrorOr<AuthenticationResult> authResult = _authenticationCommandService.Register(request.FirstName, request.LastName, request.Email, request.Password);
+ public async Task<IActionResult> Register(RegisterRequest request){
+    var command =new  RegisterCommand(request.FirstName, request.LastName, request.Email, request.Password);
+    ErrorOr<AuthenticationResult> authResult = await _mediator.Send(command);
     return authResult.Match(authResult=>Ok(NewMethod(authResult)),
      errors=>Problem(errors));
-
-
  }
 
     private AuthenticationResponse NewMethod(AuthenticationResult authResult)
@@ -38,8 +38,10 @@ public class AuthenticationController : ApiController{
     }
 
     [HttpPost("login")]
- public IActionResult Login(LoginRequest request){
-     ErrorOr<AuthenticationResult> authResult = _authenticationQueryService.Login(request.Email, request.Password);
+ public async Task<IActionResult> Login(LoginRequest request){
+     var command = new LoginQuery(request.Email, request.Password);
+      ErrorOr<AuthenticationResult> authResult =await _mediator.Send(command);
+     
      return authResult.Match(authResult=>Ok(NewMethod(authResult)),
      errors=>Problem(errors));
      
