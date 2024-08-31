@@ -1,0 +1,44 @@
+Mapster library
+dotnet add package Mapster
+dotnet add package Mapster.DependencyInjection
+
+To Add a custom Mapping for a complex object mapping we create a class 
+public class AuthenticationMappingConfig : IRegister
+{
+    public void Register(TypeAdapterConfig config)
+    {
+        config.NewConfig<AuthenticationResult, AuthenticationResponse>()
+        .Map(dest=>dest.Token,src=>src.Token)
+        .Map(dest=>dest,src=>src.user);
+    }
+}
+
+
+
+public record AuthenticationResponse(
+   Guid Id,
+   string FirstName,
+   string LastName,
+   string Email,
+   string Token 
+);
+
+public record AuthenticationResult(
+   User user,
+   string Token
+);
+
+We create a dependency Injection config i.e extending the Service Collection class to have our method that will perform the configuration for dependency Injection
+
+public static class DependencyInjection{
+    public static IServiceCollection AddMappings(this IServiceCollection services){
+        var config = TypeAdapterConfig.GlobalSettings;
+        config.Scan(Assembly.GetExecutingAssembly());
+        services.AddSingleton(config);
+        services.AddScoped<IMapper, ServiceMapper>();
+        return services;
+    }
+}
+
+Here Token property is fetched from Token property of source Class i.e AuthenticationResult
+User is an object itself hence individual properties of Authentication Response will  be mapped to the properties of class User

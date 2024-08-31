@@ -1,0 +1,2 @@
+We have cleaned up the program.cs file by moving all our dependency injection into a commmon file in WebApi project.
+DependencyInjection file will be used to configure our dependency of the WebApi project.

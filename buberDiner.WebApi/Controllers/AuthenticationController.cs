@@ -11,6 +11,7 @@ using BuberDinner.WebApi.Filter;
 using ErrorOr;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using MapsterMapper;
 
 namespace BuberDinner.WebApi.Controllers;
 
@@ -20,13 +21,15 @@ namespace BuberDinner.WebApi.Controllers;
 public class AuthenticationController : ApiController{
 
  private readonly ISender _mediator;
+ private readonly IMapper _mapper;
 
- public AuthenticationController(ISender mediator){
+ public AuthenticationController(ISender mediator, IMapper mapper){
     _mediator = mediator;
+    _mapper = mapper;
  }
  [HttpPost("register")]
  public async Task<IActionResult> Register(RegisterRequest request){
-    var command =new  RegisterCommand(request.FirstName, request.LastName, request.Email, request.Password);
+    var command = _mapper.Map<RegisterCommand>(request); //new  RegisterCommand(request.FirstName, request.LastName, request.Email, request.Password);
     ErrorOr<AuthenticationResult> authResult = await _mediator.Send(command);
     return authResult.Match(authResult=>Ok(NewMethod(authResult)),
      errors=>Problem(errors));
@@ -39,7 +42,7 @@ public class AuthenticationController : ApiController{
 
     [HttpPost("login")]
  public async Task<IActionResult> Login(LoginRequest request){
-     var command = new LoginQuery(request.Email, request.Password);
+     var command = _mapper.Map<LoginQuery>(request);//  new LoginQuery(request.Email, request.Password);
       ErrorOr<AuthenticationResult> authResult =await _mediator.Send(command);
      
      return authResult.Match(authResult=>Ok(NewMethod(authResult)),
