@@ -1,0 +1,11 @@
+Added fluentValidation Library to Application package
+dotnet add package FluentValidation
+
+To avoid mapping validator for every handler in our dependency class we add package that will check for all possible FluentValidation validator in the executing assembly and add it to mapping behind the scene
+
+dotnet add package FluentValidation.AspNetCore
+
+services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly())
+
+To Learn,
+What is PipeLine behavior
