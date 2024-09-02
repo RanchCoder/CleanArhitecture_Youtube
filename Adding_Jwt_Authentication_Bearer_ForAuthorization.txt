@@ -1,0 +1,2 @@
+JwtBearerDefaults configuration in infrastructure layer dependency injection file to inject the authentication service 
+Microsoft.AspNetCore.Authentication.JwtBearer

@@ -31,7 +31,8 @@ public class JwtTokenGenerator : IJwtTokenGenerator
 
 
     var securityToken = new JwtSecurityToken(
-      issuer: "BubberDinner",
+      issuer: "BuberDinner",
+      audience:"BuberDinner",
       expires: _dateTimeProvider.UTCNow.AddMinutes(60),
       claims : claims,
       signingCredentials: signingCredentials
